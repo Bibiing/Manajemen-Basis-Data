@@ -117,5 +117,7 @@ Menyimpan data pengguna yang memiliki akses ke sistem (admin, staf sekolah, dll)
 
 ## CDM
 ![CDM](https://drive.google.com/uc?export=view&id=1ACRk4QMzbVevkObAjTUADUP-ygZWcGeV)
+import to your oracle data model [cdm](dl_settings.xml)
+
 
 
