@@ -64,7 +64,6 @@ Menyimpan dokumen yang diunggah siswa saat pendaftaran.
 | `document_id`  | CHAR(10) (Primary Key, Auto Increment)  | ID unik dokumen |
 | `registration_id`  | CHAR(10) (Foreign Key ke Registration)  | ID pendaftaran terkait |
 | `document_type`  | ENUM('Birth Certificate', 'Report Card', 'Family Card', 'Other') | Jenis dokumen. di model makai varchar(255) |
-| `file_path`  | VARCHAR(255)  | Lokasi file yang diunggah |
 | `verification_status`  | ENUM('Pending', 'Verified', 'Rejected') | Status verifikasi dokumen. di model makai varchar(255) |
 
 ---
@@ -103,7 +102,7 @@ Menyimpan data siswa yang berhasil diterima dan melakukan daftar ulang.
 
 ## CDM
 ![CDM](https://drive.google.com/uc?export=view&id=1ACRk4QMzbVevkObAjTUADUP-ygZWcGeV)
-import to your oracle data model [cdm](dl_settings.xml)
+import to your oracle data model [cdm](dl_settings.xml) - remove file_path attribute from dokumen
 
 
 
