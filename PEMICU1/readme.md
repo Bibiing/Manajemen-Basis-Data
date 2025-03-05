@@ -114,3 +114,8 @@ Menyimpan data pengguna yang memiliki akses ke sistem (admin, staf sekolah, dll)
 - **Registration ↔ Selection** → **One-to-One** (Setiap pendaftaran hanya memiliki satu hasil seleksi)  
 - **Selection ↔ Re-registration** → **One-to-One** (Siswa yang diterima hanya bisa daftar ulang satu kali)  
 - **Admin/User ↔ Documents** → **Many-to-One** (Admin bertugas memverifikasi dokumen)  
+
+## CDM
+![CDM](https://drive.google.com/uc?export=view&id=1ACRk4QMzbVevkObAjTUADUP-ygZWcGeV)
+
+
