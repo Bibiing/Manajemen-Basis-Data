@@ -28,12 +28,12 @@ Menyimpan data siswa yang mendaftar ke sekolah.
 
 ---
 
-## **3. Parent/Guardian (Orang Tua/Wali)**
+## **3. Parent (Orang Tua/Wali)**
 Menyimpan data orang tua atau wali siswa.  
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `guardian_id`  | INT (Primary Key, Auto Increment)  | ID unik wali siswa |
+| `parent_id`  | INT (Primary Key, Auto Increment)  | ID unik wali siswa |
 | `student_id`  | INT (Foreign Key ke Student)  | ID siswa terkait |
 | `full_name`  | VARCHAR(255)  | Nama lengkap wali |
 | `relationship`  | ENUM('Father', 'Mother', 'Guardian')  | Hubungan dengan siswa |
@@ -107,7 +107,7 @@ Menyimpan data pengguna yang memiliki akses ke sistem (admin, staf sekolah, dll)
 ---
 
 ## **Final Relationships (Hubungan Antar Entitas)**
-- **Student ↔ Parent/Guardian** → **One-to-Many** (Satu siswa bisa memiliki lebih dari satu wali)  
+- **Student ↔ Parent** → **One-to-Many** (Satu siswa bisa memiliki lebih dari satu wali)  
 - **Student ↔ Registration** → **One-to-One** (Setiap siswa hanya bisa mendaftar satu kali per sekolah)  
 - **Registration ↔ School** → **Many-to-One** (Banyak pendaftaran bisa menuju satu sekolah)  
 - **Registration ↔ Documents** → **One-to-Many** (Satu pendaftaran bisa memiliki banyak dokumen)  
