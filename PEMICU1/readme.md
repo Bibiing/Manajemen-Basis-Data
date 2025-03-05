@@ -93,27 +93,13 @@ Menyimpan data siswa yang berhasil diterima dan melakukan daftar ulang.
 
 ---
 
-## **8. Admin/User (Pengguna Sistem)**
-Menyimpan data pengguna yang memiliki akses ke sistem (admin, staf sekolah, dll).  
-
-| **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
-|------------------|--------------|---------------|
-| `user_id`  | CHAR(8) (Primary Key, Auto Increment)  | ID unik pengguna |
-| `full_name`  | VARCHAR(255)  | Nama lengkap pengguna |
-| `role`  | ENUM('Admin', 'Verifier', 'School Staff') | Peran pengguna dalam sistem. di model makai varchar(255) |
-| `email`  | VARCHAR(255) (UNIQUE) | Email pengguna |
-| `password`  | VARCHAR(255) | Password terenkripsi |
-
----
-
 ## **Final Relationships (Hubungan Antar Entitas)**
 - **Student ↔ Parent** → **One-to-Many** (Satu siswa bisa memiliki lebih dari satu wali)  
 - **Student ↔ Registration** → **One-to-One** (Setiap siswa hanya bisa mendaftar satu kali per sekolah)  
 - **Registration ↔ School** → **Many-to-One** (Banyak pendaftaran bisa menuju satu sekolah)  
 - **Registration ↔ Documents** → **One-to-Many** (Satu pendaftaran bisa memiliki banyak dokumen)  
 - **Registration ↔ Selection** → **One-to-One** (Setiap pendaftaran hanya memiliki satu hasil seleksi)  
-- **Selection ↔ Re-registration** → **One-to-One** (Siswa yang diterima hanya bisa daftar ulang satu kali)  
-- **Admin/User ↔ Documents** → **Many-to-One** (Admin bertugas memverifikasi dokumen)  
+- **Selection ↔ Re-registration** → **One-to-One** (Siswa yang diterima hanya bisa daftar ulang satu kali)   
 
 ## CDM
 ![CDM](https://drive.google.com/uc?export=view&id=1ACRk4QMzbVevkObAjTUADUP-ygZWcGeV)
