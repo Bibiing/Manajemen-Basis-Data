@@ -3,10 +3,10 @@ Menyimpan data sekolah yang menerima pendaftaran siswa.
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `school_id`  | INT (Primary Key, Auto Increment)  | ID unik sekolah |
+| `school_id`  | CHAR(8) (Primary Key, Auto Increment)  | ID unik sekolah |
 | `name`  | VARCHAR(255)  | Nama sekolah |
-| `address`  | TEXT  | Alamat lengkap sekolah |
-| `phone_number`  | VARCHAR(15)  | Nomor telepon sekolah |
+| `address`  | VARCHAR(255)  | Alamat lengkap sekolah |
+| `phone_number`  | VARCHAR(16)  | Nomor telepon sekolah |
 | `email`  | VARCHAR(255) (UNIQUE) | Email resmi sekolah |
 | `capacity`  | INT  | Kapasitas maksimal siswa yang dapat diterima |
 
@@ -17,12 +17,12 @@ Menyimpan data siswa yang mendaftar ke sekolah.
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `student_id`  | INT (Primary Key, Auto Increment)  | ID unik siswa |
+| `student_id`  | CHAR(8) (Primary Key, Auto Increment)  | ID unik siswa |
 | `full_name`  | VARCHAR(255)  | Nama lengkap siswa |
 | `date_of_birth`  | DATE  | Tanggal lahir siswa |
-| `gender`  | ENUM('Male', 'Female')  | Jenis kelamin siswa |
-| `address`  | TEXT  | Alamat lengkap siswa |
-| `phone_number`  | VARCHAR(15)  | Nomor telepon siswa |
+| `gender`  | ENUM('Male', 'Female')  | Jenis kelamin siswa. di model make CHAR(1) untuk 'F'/'M' | 
+| `address`  | VARCHAR(255)  | Alamat lengkap siswa |
+| `phone_number`  | VARCHAR(16)  | Nomor telepon siswa |
 | `email`  | VARCHAR(255) (UNIQUE) | Email siswa |
 | `previous_school`  | VARCHAR(255)  | Nama sekolah sebelumnya |
 
@@ -33,11 +33,11 @@ Menyimpan data orang tua atau wali siswa.
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `parent_id`  | INT (Primary Key, Auto Increment)  | ID unik wali siswa |
-| `student_id`  | INT (Foreign Key ke Student)  | ID siswa terkait |
+| `parent_id`  | CHAR(8) (Primary Key, Auto Increment)  | ID unik wali siswa |
+| `student_id`  | CHAR(8) (Foreign Key ke Student)  | ID siswa terkait |
 | `full_name`  | VARCHAR(255)  | Nama lengkap wali |
-| `relationship`  | ENUM('Father', 'Mother', 'Guardian')  | Hubungan dengan siswa |
-| `phone_number`  | VARCHAR(15)  | Nomor telepon wali |
+| `relationship`  | ENUM('Father', 'Mother', 'Guardian')  | Hubungan dengan siswa. dimodel makai varchar(255) | 
+| `phone_number`  | VARCHAR(16)  | Nomor telepon wali |
 | `occupation`  | VARCHAR(255)  | Pekerjaan wali |
 
 ---
@@ -47,12 +47,12 @@ Menyimpan data pendaftaran siswa ke sekolah tertentu.
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `registration_id`  | INT (Primary Key, Auto Increment)  | ID unik pendaftaran |
-| `student_id`  | INT (Foreign Key ke Student)  | ID siswa yang mendaftar |
-| `school_id`  | INT (Foreign Key ke School)  | ID sekolah tujuan |
+| `registration_id`  | CHAR(10) (Primary Key, Auto Increment)  | ID unik pendaftaran |
+| `student_id`  | CHAR(8) (Foreign Key ke Student)  | ID siswa yang mendaftar |
+| `school_id`  | CHAR(8) (Foreign Key ke School)  | ID sekolah tujuan |
 | `registration_date`  | TIMESTAMP DEFAULT CURRENT_TIMESTAMP | Tanggal dan waktu pendaftaran |
-| `registration_path`  | ENUM('Zoning', 'Affirmative', 'Achievement', 'Parent Transfer') | Jalur pendaftaran |
-| `status`  | ENUM('Pending', 'Verified', 'Rejected') | Status pendaftaran |
+| `registration_path`  | ENUM('Zoning', 'Affirmative', 'Achievement', 'Parent Transfer') | Jalur pendaftaran. di model makai varchar(255) | 
+| `status`  | ENUM('Pending', 'Verified', 'Rejected') | Status pendaftaran. di model makai varchar(255) |
 
 ---
 
@@ -61,11 +61,11 @@ Menyimpan dokumen yang diunggah siswa saat pendaftaran.
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `document_id`  | INT (Primary Key, Auto Increment)  | ID unik dokumen |
-| `registration_id`  | INT (Foreign Key ke Registration)  | ID pendaftaran terkait |
-| `document_type`  | ENUM('Birth Certificate', 'Report Card', 'Family Card', 'Other') | Jenis dokumen |
+| `document_id`  | CHAR(10) (Primary Key, Auto Increment)  | ID unik dokumen |
+| `registration_id`  | CHAR(10) (Foreign Key ke Registration)  | ID pendaftaran terkait |
+| `document_type`  | ENUM('Birth Certificate', 'Report Card', 'Family Card', 'Other') | Jenis dokumen. di model makai varchar(255) |
 | `file_path`  | VARCHAR(255)  | Lokasi file yang diunggah |
-| `verification_status`  | ENUM('Pending', 'Verified', 'Rejected') | Status verifikasi dokumen |
+| `verification_status`  | ENUM('Pending', 'Verified', 'Rejected') | Status verifikasi dokumen. di model makai varchar(255) |
 
 ---
 
@@ -74,10 +74,10 @@ Menyimpan hasil seleksi siswa yang telah mendaftar.
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `selection_id`  | INT (Primary Key, Auto Increment)  | ID unik seleksi |
-| `registration_id`  | INT (Foreign Key ke Registration)  | ID pendaftaran terkait |
+| `selection_id`  | CHAR(10) (Primary Key, Auto Increment)  | ID unik seleksi |
+| `registration_id`  | CHAR(10) (Foreign Key ke Registration)  | ID pendaftaran terkait |
 | `score`  | FLOAT (NULLABLE) | Skor seleksi (digunakan hanya untuk Jalur Prestasi) |
-| `status`  | ENUM('Accepted', 'Rejected', 'Waitlisted') | Status hasil seleksi |
+| `status`  | ENUM('Accepted', 'Rejected', 'Waitlisted') | Status hasil seleksi. di model makai varchar(255) |
 
 ---
 
@@ -86,9 +86,9 @@ Menyimpan data siswa yang berhasil diterima dan melakukan daftar ulang.
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `re_registration_id`  | INT (Primary Key, Auto Increment)  | ID unik daftar ulang |
-| `selection_id`  | INT (Foreign Key ke Selection)  | ID seleksi terkait |
-| `status`  | ENUM('Completed', 'Pending', 'Cancelled') | Status daftar ulang |
+| `re_registration_id`  | CHAR(10) (Primary Key, Auto Increment)  | ID unik daftar ulang |
+| `selection_id`  | CHAR(10) (Foreign Key ke Selection)  | ID seleksi terkait |
+| `status`  | ENUM('Completed', 'Pending', 'Cancelled') | Status daftar ulang. di model makai varchar(255) |
 | `re_registration_date`  | TIMESTAMP DEFAULT CURRENT_TIMESTAMP | Tanggal daftar ulang |
 
 ---
@@ -98,9 +98,9 @@ Menyimpan data pengguna yang memiliki akses ke sistem (admin, staf sekolah, dll)
 
 | **Nama Atribut**  | **Tipe Data**  | **Deskripsi**  |
 |------------------|--------------|---------------|
-| `user_id`  | INT (Primary Key, Auto Increment)  | ID unik pengguna |
+| `user_id`  | CHAR(8) (Primary Key, Auto Increment)  | ID unik pengguna |
 | `full_name`  | VARCHAR(255)  | Nama lengkap pengguna |
-| `role`  | ENUM('Admin', 'Verifier', 'School Staff') | Peran pengguna dalam sistem |
+| `role`  | ENUM('Admin', 'Verifier', 'School Staff') | Peran pengguna dalam sistem. di model makai varchar(255) |
 | `email`  | VARCHAR(255) (UNIQUE) | Email pengguna |
 | `password`  | VARCHAR(255) | Password terenkripsi |
 
