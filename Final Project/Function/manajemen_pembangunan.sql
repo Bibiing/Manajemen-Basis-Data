@@ -1,3 +1,4 @@
+-- no 5 Poin D
 -- Fungsi untuk mengelola progres pengerjaan proyek
 CREATE OR REPLACE FUNCTION lacak_kemajuan_proyek(p_id_proyek BIGINT)
 RETURNS TABLE (
