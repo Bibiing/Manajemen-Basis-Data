@@ -12,16 +12,21 @@ CREATE TABLE Keluarga (
 	jumlah_anggota INTEGER NOT NULL
 );
 
+CREATE TYPE tipe_jenis_kelamin ('Laki-laki', 'Perempuan');
+CREATE TYPE tipe_status_perkawinan ('Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati');
+CREATE TYPE tipe_jenjang_pendidikan ('Tidak Sekolah', 'SD', 'SMP', 'SMA/SMK', 'D1/D2/D3', 'S1', 'S2', 'S3');
+CREATE TYPE tipe_status_ekonomi ('Sangat Mampu', 'Mampu', 'Cukup Mampu', 'Kurang Mampu', 'Tidak Mampu');
+
 CREATE TABLE Warga (
-    id_warga BIGINT PRIMARY KEY,
+    id_warga BIGINT PRIMARY KEY, 
     nik CHAR(16) NOT NULL UNIQUE,
     nama VARCHAR(100) NOT NULL,
     tanggal_lahir DATE NOT NULL,
-    jenis_kelamin VARCHAR(10) NOT NULL CHECK (jenis_kelamin IN ('Laki-laki', 'Perempuan')), 
-    status_perkawinan VARCHAR(50),
-    pendidikan_terakhir VARCHAR(50),
+    jenis_kelamin tipe_jenis_kelamin NOT NULL,
+    status_perkawinan tipe_status_perkawinan,
+    pendidikan_terakhir tipe_jenjang_pendidikan,
     pekerjaan VARCHAR(100),
-    status_ekonomi VARCHAR(50),
+    status_ekonomi tipe_status_ekonomi,
     id_keluarga BIGINT NOT NULL, 
     FOREIGN KEY (id_keluarga) REFERENCES Keluarga(id_keluarga)
 );
@@ -65,6 +70,7 @@ CREATE TABLE Sumber_Dana (
     tanggal_alokasi DATE NOT NULL,     
     keterangan TEXT,
     FOREIGN KEY (id_anggaran_tahunan) REFERENCES Anggaran_Desa(id_anggaran)
+    FOREIGN KEY (id_proyek) REFERENCES Proyek_Pembangunan(id_proyek) 
 );
 
 CREATE TABLE Transaksi_Realisasi (
@@ -89,7 +95,7 @@ CREATE TABLE Jenis_Surat (
     keterangan TEXT
 );
 
-CREATE TYPE status_permohonan_enum AS ENUM (
+CREATE TYPE status_permohonan_enum (
   'Diajukan',
   'Diverifikasi',
   'Ditolak',
