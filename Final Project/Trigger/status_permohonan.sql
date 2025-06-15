@@ -1,3 +1,4 @@
+-- No 4 Poin B atau A?
 -- Langkah 1: Buat fungsi trigger
 CREATE OR REPLACE FUNCTION fn_auto_timestamp_surat()
 RETURNS TRIGGER AS $$
