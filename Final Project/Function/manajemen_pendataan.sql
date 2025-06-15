@@ -1,3 +1,4 @@
+-- No 5 poin B
 -- Fungsi untuk mengupdate data warga (No KK, pendidikan terakhir, pekerjaan, dan status ekonomi)
 CREATE OR REPLACE FUNCTION update_data_warga(
     p_nik CHAR(16),
