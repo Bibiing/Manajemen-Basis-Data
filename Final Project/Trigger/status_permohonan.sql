@@ -1,39 +1,44 @@
--- No 4 Poin B atau A?
--- Langkah 1: Buat fungsi trigger
-CREATE OR REPLACE FUNCTION fn_auto_timestamp_surat()
+-- Trigger Function
+-- Point B
+CREATE OR REPLACE FUNCTION fn_update_jumlah_anggota()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Hanya jalankan logika jika kolom status benar-benar berubah
-    IF OLD.status_permohonan IS DISTINCT FROM NEW.status_permohonan THEN
+    -- Jika operasi adalah INSERT (warga baru)
+    IF (TG_OP = 'INSERT') THEN
+        UPDATE Keluarga
+        SET jumlah_anggota = jumlah_anggota + 1
+        WHERE id_keluarga = NEW.id_keluarga;
     
-        -- Jika status berubah menjadi 'Diverifikasi' dan tanggal verifikasi masih kosong
-        IF NEW.status_permohonan = 'Diverifikasi' AND NEW.tanggal_verifikasi IS NULL THEN
-            NEW.tanggal_verifikasi := NOW();
-        END IF;
+    -- Jika operasi adalah DELETE (warga dihapus)
+    ELSIF (TG_OP = 'DELETE') THEN
+        UPDATE Keluarga
+        SET jumlah_anggota = jumlah_anggota - 1
+        WHERE id_keluarga = OLD.id_keluarga;
 
-        -- Jika status berubah menjadi 'Selesai' dan tanggal selesai masih kosong
-        IF NEW.status_permohonan = 'Selesai' AND NEW.tanggal_selesai_diproses IS NULL THEN
-            -- Pastikan tanggal verifikasi juga terisi jika terlewat
-            IF NEW.tanggal_verifikasi IS NULL THEN
-                NEW.tanggal_verifikasi := NOW();
-            END IF;
-            NEW.tanggal_selesai_diproses := NOW();
-        END IF;
+    -- Jika operasi adalah UPDATE dan id_keluarga berubah (pindah KK)
+    ELSIF (TG_OP = 'UPDATE' AND NEW.id_keluarga IS DISTINCT FROM OLD.id_keluarga) THEN
+        -- Kurangi jumlah di keluarga lama
+        UPDATE Keluarga
+        SET jumlah_anggota = jumlah_anggota - 1
+        WHERE id_keluarga = OLD.id_keluarga;
         
-        -- Jika status berubah menjadi 'Sudah Diambil'
-        IF NEW.status_permohonan = 'Sudah Diambil' AND NEW.tanggal_diambil_warga IS NULL THEN
-            NEW.tanggal_diambil_warga := NOW();
-        END IF;
-
+        -- Tambah jumlah di keluarga baru
+        UPDATE Keluarga
+        SET jumlah_anggota = jumlah_anggota + 1
+        WHERE id_keluarga = NEW.id_keluarga;
     END IF;
 
-    -- Kembalikan baris baru agar operasi UPDATE dapat dilanjutkan
-    RETURN NEW;
+    -- Kembalikan baris yang sesuai dengan operasi
+    IF (TG_OP = 'DELETE') THEN
+        RETURN OLD;
+    ELSE
+        RETURN NEW;
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
--- Langkah 2: Lampirkan fungsi ke tabel sebagai trigger
-CREATE TRIGGER trg_auto_timestamp_surat
-BEFORE UPDATE ON Permohonan_Surat
+-- Lampirkan fungsi ke tabel Warga sebagai trigger
+CREATE TRIGGER trg_update_jumlah_anggota
+AFTER INSERT OR DELETE OR UPDATE ON Warga
 FOR EACH ROW
-EXECUTE FUNCTION fn_auto_timestamp_surat();
+EXECUTE FUNCTION fn_update_jumlah_anggota();
