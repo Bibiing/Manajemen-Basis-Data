@@ -113,3 +113,53 @@ BEGIN
     END IF;
 END;
 $$;
+
+----warga baru + keluarga baru----
+CALL KelolaWarga(
+    'CREATE',
+    '3210123456780001',           
+    'Andi Saputra',             
+    '2000-01-01',                
+    'Laki-laki',                  
+    NULL,                         
+    '1234567890123456',            
+    'Jl. Merdeka No.1',          
+    'Belum Kawin',                  
+    'SMA',                         
+    'Pelajar',                      
+    'Menengah'                      
+);
+
+----warga baru + keluarga sudah ada----
+CALL KelolaWarga(
+    'CREATE',
+    '3210123456780002',
+    'Budi Santoso',
+    '1995-05-05',
+    'Laki-laki',
+    1,                              -- id_keluarga(ganti sesuai yang atas)
+    NULL,                           -- no_kk tidak perlu
+    NULL,                           -- alamat tidak perlu
+    'Menikah',
+    'S1',
+    'Pegawai Negeri',
+    'Menengah'
+);
+
+----Update Data----
+CALL KelolaWarga(
+    'UPDATE',
+    '3210123456780001',    
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL,
+    'S2',                  
+    'Dosen',              
+    NULL
+);
+
+----Delete Data----
+CALL KelolaWarga(
+    'DELETE',
+    '3210123456780002'    
+);
+
