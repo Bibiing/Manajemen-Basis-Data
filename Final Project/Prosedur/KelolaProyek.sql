@@ -87,3 +87,5 @@ BEGIN
     RAISE NOTICE '----------------------------------------------';
 END;
 $$;
+
+call kelola_proyek(1);
