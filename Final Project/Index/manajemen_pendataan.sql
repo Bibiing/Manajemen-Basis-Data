@@ -12,8 +12,8 @@ JOIN
 JOIN
     Jenis_Surat js ON ps.id_jenis = js.id_jenis
 WHERE 
-    ps.status_permohonan = 'Ditolak'
+    ps.status_permohonan = 'Diajukan'
 ORDER BY 
-    ps.tanggal_permohonan DESC;
+    ps.tanggal_permohonan ASC;
 
 CREATE INDEX idx_status_surat ON permohonan_surat (status_permohonan);
