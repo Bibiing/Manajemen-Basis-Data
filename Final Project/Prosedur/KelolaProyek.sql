@@ -1,117 +1,89 @@
-CREATE OR REPLACE FUNCTION KelolaProyek(
-    -- Parameter utama untuk menentukan aksi
-    p_aksi VARCHAR, -- 'BUAT_PROYEK', 'UPDATE_PROGRESS', 'UBAH_DETAIL'
-    
-    -- Parameter Kunci (digunakan di UPDATE/DELETE)
-    p_id_proyek BIGINT DEFAULT NULL,
-    
-    -- Parameter untuk 'BUAT_PROYEK'
-    p_nama_proyek VARCHAR(255) DEFAULT NULL,
-    p_deskripsi TEXT DEFAULT NULL,
-    p_tanggal_mulai DATE DEFAULT NULL,
-    p_id_anggaran BIGINT DEFAULT NULL,
-    
-    -- Parameter untuk 'UPDATE_PROGRESS'
-    p_persentase_baru DECIMAL(5, 2) DEFAULT NULL,
-    
-    -- Parameter untuk 'UBAH_DETAIL'
-    p_tanggal_selesai_baru DATE DEFAULT NULL
-)
-RETURNS TEXT AS $$
+CREATE OR REPLACE PROCEDURE kelola_proyek(p_id_proyek BIGINT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_nama_proyek TEXT;
+    v_status TEXT;
+    v_mulai DATE;
+    v_selesai DATE;
+    v_progress NUMERIC(5,2);
+    v_durasi_berjalan INTEGER;
+    v_durasi_total INTEGER;
+    v_total_dana NUMERIC(18,2);
+    v_anggaran_tahunan NUMERIC(18,2);
+    v_tahun INTEGER;
 BEGIN
-    -- ==========================================================
-    -- Blok Logika untuk Aksi 'BUAT_PROYEK'
-    -- ==========================================================
-    IF p_aksi = 'BUAT_PROYEK' THEN
-        IF p_nama_proyek IS NULL OR p_tanggal_mulai IS NULL OR p_id_anggaran IS NULL THEN
-            RETURN 'Gagal: Nama Proyek, Tanggal Mulai, dan ID Anggaran harus diisi untuk membuat proyek baru.';
-        END IF;
+    SELECT nama_proyek, status_proyek, tanggal_mulai, tanggal_selesai, persentase_progress
+    INTO v_nama_proyek, v_status, v_mulai, v_selesai, v_progress
+    FROM proyek_pembangunan
+    WHERE id_proyek = p_id_proyek;
 
-        INSERT INTO Proyek_Pembangunan(nama_proyek, deskripsi, tanggal_mulai, status_proyek, anggaran_proyek, persentase_progress, id_anggaran)
-        VALUES (p_nama_proyek, p_deskripsi, p_tanggal_mulai, 'Direncanakan', 0.00, 0.00, p_id_anggaran);
-        
-        RETURN 'Sukses: Proyek baru "' || p_nama_proyek || '" telah berhasil dibuat.';
-
-    -- ==========================================================
-    -- Blok Logika untuk Aksi 'UPDATE_PROGRESS'
-    -- ==========================================================
-    ELSIF p_aksi = 'UPDATE_PROGRESS' THEN
-        IF NOT EXISTS (SELECT 1 FROM Proyek_Pembangunan WHERE id_proyek = p_id_proyek) THEN
-            RETURN 'Gagal: Proyek dengan ID ' || p_id_proyek || ' tidak ditemukan.';
-        END IF;
-        IF p_persentase_baru < 0 OR p_persentase_baru > 100 THEN
-            RETURN 'Gagal: Persentase harus di antara 0 dan 100.';
-        END IF;
-
-        UPDATE Proyek_Pembangunan
-        SET
-            persentase_progress = p_persentase_baru,
-            status_proyek = CASE
-                                WHEN p_persentase_baru = 100.00 THEN 'Selesai'
-                                WHEN p_persentase_baru > 0.00 THEN 'Diproses'
-                                ELSE 'Direncanakan'
-                            END,
-            tanggal_selesai = CASE
-                                WHEN p_persentase_baru = 100.00 THEN CURRENT_DATE
-                                ELSE tanggal_selesai
-                              END
-        WHERE id_proyek = p_id_proyek;
-        
-        RETURN 'Sukses: Progres proyek ID ' || p_id_proyek || ' telah diperbarui menjadi ' || p_persentase_baru || '%.';
-
-    -- ==========================================================
-    -- Blok Logika untuk Aksi 'UBAH_DETAIL'
-    -- ==========================================================
-    ELSIF p_aksi = 'UBAH_DETAIL' THEN
-        IF NOT EXISTS (SELECT 1 FROM Proyek_Pembangunan WHERE id_proyek = p_id_proyek) THEN
-            RETURN 'Gagal: Proyek dengan ID ' || p_id_proyek || ' tidak ditemukan.';
-        END IF;
-
-        UPDATE Proyek_Pembangunan
-        SET
-            nama_proyek = COALESCE(p_nama_proyek, nama_proyek),
-            deskripsi = COALESCE(p_deskripsi, deskripsi),
-            tanggal_selesai = COALESCE(p_tanggal_selesai_baru, tanggal_selesai)
-        WHERE id_proyek = p_id_proyek;
-        
-        RETURN 'Sukses: Detail untuk proyek ID ' || p_id_proyek || ' telah diperbarui.';
-        
-    -- Jika aksi tidak valid
-    ELSE
-        RETURN 'Gagal: Aksi "' || p_aksi || '" tidak valid. Gunakan ''BUAT_PROYEK'', ''UPDATE_PROGRESS'', atau ''UBAH_DETAIL''.';
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Proyek dengan ID % tidak ditemukan.', p_id_proyek;
+        RETURN;
     END IF;
+
+    v_tahun := EXTRACT(YEAR FROM v_mulai);
+    SELECT total_anggaran INTO v_anggaran_tahunan
+    FROM anggaran_desa
+    WHERE tahun = v_tahun;
+
+    SELECT COALESCE(SUM(jumlah_dana), 0) INTO v_total_dana
+    FROM rincian_anggaran
+    WHERE id_proyek = p_id_proyek;
+
+    RAISE NOTICE '--- Laporan Proyek ID % ---', p_id_proyek;
+    RAISE NOTICE 'Nama Proyek          : %', v_nama_proyek;
+    RAISE NOTICE 'Status Proyek        : %', v_status;
+    RAISE NOTICE 'Tanggal Mulai        : %', v_mulai;
+
+    IF v_status = 'Direncanakan' THEN
+        RAISE NOTICE 'Tanggal Selesai      : Belum Ditentukan';
+        RAISE NOTICE 'Progress Saat Ini    : % %%', TO_CHAR(v_progress, 'FM990.00');
+        RAISE NOTICE 'Total Dana Dibutuhkan: Rp %', TO_CHAR(v_total_dana, 'FM999G999G999G990.00');
+
+        IF v_total_dana > v_anggaran_tahunan THEN
+            RAISE NOTICE 'Peringatan: Melebihi anggaran tahun % (Rp %)', v_tahun, TO_CHAR(v_anggaran_tahunan, 'FM999G999G999G990.00');
+        END IF;
+
+    ELSIF v_status = 'Berjalan' THEN
+        RAISE NOTICE 'Tanggal Selesai      : Belum Ditentukan';
+        RAISE NOTICE 'Progress Saat Ini    : % %%', TO_CHAR(v_progress, 'FM990.00');
+
+        IF v_mulai <= CURRENT_DATE THEN
+            v_durasi_berjalan := CURRENT_DATE - v_mulai;
+            RAISE NOTICE 'Durasi Berjalan      : % hari (belum diketahui durasi total)', v_durasi_berjalan;
+        ELSE
+            RAISE NOTICE 'Durasi Berjalan      : Belum dimulai';
+        END IF;
+
+        RAISE NOTICE 'Total Dana Terpakai  : Rp %', TO_CHAR(v_total_dana, 'FM999G999G999G990.00');
+
+        IF v_total_dana > v_anggaran_tahunan THEN
+            RAISE NOTICE 'Peringatan: Pengeluaran melebihi anggaran tahun % (Rp %)', v_tahun, TO_CHAR(v_anggaran_tahunan, 'FM999G999G999G990.00');
+        END IF;
+
+    ELSIF v_status = 'Selesai' THEN
+        RAISE NOTICE 'Tanggal Selesai      : %', v_selesai;
+        RAISE NOTICE 'Progress Saat Ini    : % %%', TO_CHAR(v_progress, 'FM990.00');
+
+        IF v_mulai IS NOT NULL AND v_selesai IS NOT NULL THEN
+            v_durasi_total := v_selesai - v_mulai;
+            RAISE NOTICE 'Durasi Total         : % hari', v_durasi_total;
+        ELSE
+            RAISE NOTICE 'Durasi Total         : Tidak tersedia';
+        END IF;
+
+        RAISE NOTICE 'Total Dana Terpakai  : Rp %', TO_CHAR(v_total_dana, 'FM999G999G999G990.00');
+
+        IF v_total_dana > v_anggaran_tahunan THEN
+            RAISE NOTICE 'Peringatan: Pengeluaran melebihi anggaran tahun % (Rp %)', v_tahun, TO_CHAR(v_anggaran_tahunan, 'FM999G999G999G990.00');
+        END IF;
+
+    ELSE
+        RAISE NOTICE 'Status proyek tidak dikenali: %', v_status;
+    END IF;
+
+    RAISE NOTICE '----------------------------------------------';
 END;
-$$ LANGUAGE plpgsql;
-
-SELECT KelolaProyek(
-    p_aksi          := 'BUAT_PROYEK', 
-    p_nama_proyek   := 'Penerangan Jalan Kampung Baru', 
-    p_deskripsi     := 'Pemasangan lampu di 50 titik di Kampung Baru',
-    p_tanggal_mulai := '2025-02-01',
-    p_id_anggaran   := 18
-);
-
--- Cek apakah proyek baru sudah masuk
-SELECT * FROM Proyek_Pembangunan WHERE nama_proyek = 'Penerangan Jalan Kampung Baru';
-
--- Memperbarui progres proyek menjadi 50%
-SELECT KelolaProyek(
-    p_aksi            := 'UPDATE_PROGRESS', 
-    p_id_proyek       := 514, 
-    p_persentase_baru := 50.00
-);
-
--- Cek status dan persentase proyek ID 3
-SELECT id_proyek, status_proyek, persentase_progress FROM Proyek_Pembangunan WHERE id_proyek = 3;
--- Hasil yang diharapkan: status_proyek = 'Diproses', persentase_progress = 50.00
-
--- Mengubah tanggal selesai proyek ID 3
-SELECT KelolaProyek(
-    p_aksi                 := 'UBAH_DETAIL', 
-    p_id_proyek            := 514, 
-    p_tanggal_selesai_baru := '2025-12-31'
-);
-
--- Cek tanggal selesai proyek ID 3
-SELECT id_proyek, nama_proyek, tanggal_selesai FROM Proyek_Pembangunan WHERE id_proyek = 514;
--- Hasil yang diharapkan: tanggal_selesai = 2025-12-31
+$$;
