@@ -1,6 +1,3 @@
--- Prosedur untuk Manajemen Anggaran Desa
--- Memenuhi fungsi: perencanaan, alokasi, pelaporan penggunaan, dan pemantauan transparansi
-
 CREATE OR REPLACE PROCEDURE kelola_anggaran(p_tahun INTEGER)
 LANGUAGE plpgsql
 AS $$
