@@ -51,3 +51,5 @@ BEGIN
     RAISE NOTICE '--------------------------------------------';
 END;
 $$;
+
+CALL kelola_anggaran(2024);
