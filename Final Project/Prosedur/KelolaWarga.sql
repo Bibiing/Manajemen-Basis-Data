@@ -117,8 +117,8 @@ $$;
 ----warga baru + keluarga baru----
 CALL KelolaWarga(
     'CREATE',
-    '3210123456780001',           
-    'Andi Saputra',             
+    '6210123456780001',           
+    'Udin Saputra',             
     '2000-01-01',                
     'Laki-laki',                  
     NULL,                         
@@ -133,11 +133,11 @@ CALL KelolaWarga(
 ----warga baru + keluarga sudah ada----
 CALL KelolaWarga(
     'CREATE',
-    '3210123456780002',
+    '9210123456780002',
     'Budi Santoso',
     '1995-05-05',
     'Laki-laki',
-    1,                             
+    100002,                             
     NULL,                           
     NULL,                           
     'Menikah',
@@ -149,7 +149,7 @@ CALL KelolaWarga(
 ----Update Data----
 CALL KelolaWarga(
     'UPDATE',
-    '3210123456780001',    
+    '6210123456780001',    
     NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     NULL,
     'S2',                  
@@ -160,6 +160,6 @@ CALL KelolaWarga(
 ----Delete Data----
 CALL KelolaWarga(
     'DELETE',
-    '3210123456780002'    
+    '9210123456780002'    
 );
 
