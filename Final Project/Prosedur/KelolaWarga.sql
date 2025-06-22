@@ -150,11 +150,11 @@ CALL KelolaWarga(
 CALL KelolaWarga(
     'UPDATE',
     '6210123456780001',    
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-    NULL,
-    'S2',                  
-    'Dosen',              
-    NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, 
+    NULL,                               
+    'S2',                               
+    'Dosen',                             
+    NULL                                 
 );
 
 ----Delete Data----
