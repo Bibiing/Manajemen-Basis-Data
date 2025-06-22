@@ -14,7 +14,10 @@ CREATE OR REPLACE PROCEDURE KelolaWarga(
     p_status_perkawinan VARCHAR DEFAULT NULL,
     p_pendidikan_terakhir VARCHAR DEFAULT NULL,
     p_pekerjaan VARCHAR DEFAULT NULL,
-    p_status_ekonomi VARCHAR DEFAULT NULL
+    p_status_ekonomi VARCHAR DEFAULT NULL,
+
+    -- Parameter tambahan untuk 'PERMOHONAN'
+    p_jenis_surat VARCHAR DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
@@ -23,6 +26,8 @@ DECLARE
     v_sisa_anggota INT;
     v_new_id_keluarga BIGINT;
     v_new_id_warga BIGINT;
+    v_id_warga BIGINT;
+    v_id_jenis BIGINT;
 BEGIN
     IF p_aksi = 'CREATE' THEN
         IF EXISTS (SELECT 1 FROM Warga WHERE nik = p_nik) THEN
@@ -107,8 +112,28 @@ BEGIN
             RAISE NOTICE 'Sukses DELETE: Warga dengan NIK % telah dihapus.', p_nik;
         END IF;
 
+    ELSIF p_aksi = 'PERMOHONAN' THEN
+        SELECT id_warga INTO v_id_warga FROM Warga WHERE nik = p_nik;
+        IF v_id_warga IS NULL THEN
+            RAISE NOTICE 'Gagal PERMOHONAN: Warga dengan NIK % tidak ditemukan.', p_nik;
+            RETURN;
+        END IF;
+
+        SELECT id_jenis INTO v_id_jenis FROM Jenis_Surat WHERE LOWER(nama_surat) = LOWER(p_jenis_surat);
+        IF v_id_jenis IS NULL THEN
+            RAISE NOTICE 'Gagal PERMOHONAN: Jenis surat % tidak ditemukan.', p_jenis_surat;
+            RETURN;
+        END IF;
+
+        INSERT INTO Permohonan_Surat(id_permohonan, id_warga, id_jenis, tanggal_permohonan)
+        VALUES (
+            (SELECT COALESCE(MAX(id_permohonan), 0) + 1 FROM Permohonan_Surat),
+            v_id_warga, v_id_jenis, CURRENT_DATE
+        );
+
+        RAISE NOTICE 'Permohonan surat % untuk NIK % berhasil dicatat.', p_jenis_surat, p_nik;
     ELSE
-        RAISE NOTICE 'Gagal: Aksi "%" tidak valid. Gunakan ''CREATE'', ''UPDATE'', atau ''DELETE''.', p_aksi;
+        RAISE NOTICE 'Gagal: Aksi tidak valid.';
         RETURN;
     END IF;
 END;
@@ -162,4 +187,14 @@ CALL KelolaWarga(
     'DELETE',
     '9210123456780002'    
 );
+
+--Permohonan Surat--
+CALL KelolaWarga(
+    'PERMOHONAN',
+    '6210123456780001', -- NIK warga
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL,
+    'Surat Keterangan Domisili' 
+);
+
 
