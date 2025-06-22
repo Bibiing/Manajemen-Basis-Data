@@ -5,7 +5,7 @@ RETURNS TABLE (
     nama_proyek VARCHAR,
     status_proyek VARCHAR,
     persentase_progress DECIMAL(5, 2),
-    total_pagu_anggaran NUMERIC,
+    total_anggaran NUMERIC,
     total_realisasi_belanja NUMERIC,
     sisa_anggaran NUMERIC,
     tanggal_mulai DATE,
@@ -17,21 +17,39 @@ BEGIN
         p.nama_proyek,
         p.status_proyek,
         p.persentase_progress,
-        -- Menghitung total pagu dari semua sumber dana untuk proyek ini
-        COALESCE((SELECT SUM(sd.pagu_anggaran) FROM Sumber_Dana sd WHERE sd.id_proyek = p.id_proyek), 0) AS total_pagu_anggaran,
-        -- Menghitung total belanja dari semua transaksi terkait
-        COALESCE((SELECT SUM(tr.jumlah_belanja) 
-                  FROM Transaksi_Realisasi tr 
-                  JOIN Sumber_Dana s_inner ON tr.id_sumber_dana = s_inner.id_sumber_dana
-                  WHERE s_inner.id_proyek = p.id_proyek), 0) AS total_realisasi_belanja,
-        -- Menghitung sisa dana
-        COALESCE((SELECT SUM(sd.pagu_anggaran) FROM Sumber_Dana sd WHERE sd.id_proyek = p.id_proyek), 0) - 
-        COALESCE((SELECT SUM(tr.jumlah_belanja) 
-                  FROM Transaksi_Realisasi tr 
-                  JOIN Sumber_Dana s_inner ON tr.id_sumber_dana = s_inner.id_sumber_dana
-                  WHERE s_inner.id_proyek = p.id_proyek), 0) AS sisa_anggaran,
+
+        -- SUM dari total_anggaran
+        COALESCE((
+            SELECT SUM(ad.total_anggaran)
+            FROM Anggaran_Desa ad
+            JOIN Rincian_Anggaran ra1 ON ra1.id_anggaran = ad.id_anggaran
+            WHERE ra1.id_proyek = p.id_proyek
+        ), 0) AS total_anggaran,
+
+        -- SUM dari jumlah_dana
+        COALESCE((
+            SELECT SUM(ra2.jumlah_dana)
+            FROM Rincian_Anggaran ra2
+            WHERE ra2.id_proyek = p.id_proyek
+        ), 0) AS total_realisasi_belanja,
+
+        -- Sisa anggaran = total  anggaran - realisasi
+        COALESCE((
+            SELECT SUM(ad.total_anggaran)
+            FROM Anggaran_Desa ad
+            JOIN Rincian_Anggaran ra1 ON ra1.id_anggaran = ad.id_anggaran
+            WHERE ra1.id_proyek = p.id_proyek
+        ), 0)
+        -
+        COALESCE((
+            SELECT SUM(ra2.jumlah_dana)
+            FROM Rincian_Anggaran ra2
+            WHERE ra2.id_proyek = p.id_proyek
+        ), 0) AS sisa_anggaran,
+
         p.tanggal_mulai,
         p.tanggal_selesai
+
     FROM 
         Proyek_Pembangunan p
     WHERE 
