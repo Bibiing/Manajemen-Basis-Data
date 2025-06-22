@@ -137,9 +137,9 @@ CALL KelolaWarga(
     'Budi Santoso',
     '1995-05-05',
     'Laki-laki',
-    1,                              -- id_keluarga(ganti sesuai yang atas)
-    NULL,                           -- no_kk tidak perlu
-    NULL,                           -- alamat tidak perlu
+    1,                             
+    NULL,                           
+    NULL,                           
     'Menikah',
     'S1',
     'Pegawai Negeri',
